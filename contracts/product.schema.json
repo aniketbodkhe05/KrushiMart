@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://krushimart.local/schemas/product.schema.json",
+  "title": "Product",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "sellerId",
+    "sellerName",
+    "title",
+    "description",
+    "category",
+    "price",
+    "currency",
+    "quantityAvailable",
+    "unit",
+    "listingStatus",
+    "language",
+    "region",
+    "available",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "sellerId": { "type": "integer", "minimum": 1 },
+    "sellerName": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "title": { "type": "string", "minLength": 3, "maxLength": 140 },
+    "description": { "type": "string", "minLength": 10, "maxLength": 2000 },
+    "category": {
+      "type": "string",
+      "enum": ["MACHINERY", "TOOLS", "IRRIGATION", "SEEDS", "FERTILIZERS", "PESTICIDES", "OTHER"]
+    },
+    "price": { "type": "number", "minimum": 0 },
+    "currency": { "type": "string", "const": "INR" },
+    "quantityAvailable": { "type": "number", "minimum": 0 },
+    "unit": { "type": "string", "enum": ["PIECE", "KG", "LITRE", "BAG", "QUINTAL"] },
+    "listingStatus": { "type": "string", "enum": ["ACTIVE", "INACTIVE", "SOLD"] },
+    "language": { "type": "string", "enum": ["en", "hi", "mr"] },
+    "region": { "type": "string", "minLength": 2, "maxLength": 80 },
+    "imageUrl": { "type": ["string", "null"], "maxLength": 500 },
+    "available": {
+      "type": "boolean",
+      "description": "Server-derived: true only for ACTIVE listings with quantityAvailable > 0."
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}

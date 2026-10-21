@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://krushimart.local/schemas/match-result.schema.json",
+  "title": "MatchResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["productId", "match", "confidence", "reason"],
+  "properties": {
+    "productId": { "type": ["integer", "string"] },
+    "match": { "type": "boolean" },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Estimated confidence, not a calibrated probability."
+    },
+    "reason": { "type": "string", "maxLength": 300 },
+    "equivalence": {
+      "type": "string",
+      "enum": ["EQUIVALENT", "SIMILAR_NOT_EQUIVALENT", "UNRELATED"]
+    }
+  }
+}

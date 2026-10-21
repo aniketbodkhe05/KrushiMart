@@ -1,0 +1,643 @@
+openapi: 3.0.3
+info:
+  title: KrushiMart API
+  version: 0.1.0
+  description: |
+    Shared REST contract for the KrushiMart MVP. Times are ISO-8601 UTC strings.
+    List endpoints are zero-indexed and return a PageResponse. Errors always use ApiError.
+    The frontend mock adapters reproduce these response shapes.
+servers:
+  - url: http://localhost:8080
+    description: Local Spring Boot
+tags:
+  - name: Auth
+  - name: Users
+  - name: Products
+  - name: Search
+  - name: Requests
+  - name: DemandGap
+  - name: Notifications
+  - name: Contact
+  - name: AI
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a farmer or customer account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in with phone and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: JWT issued
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Current authenticated user
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/users/me:
+    get:
+      tags: [Users]
+      summary: Read own agricultural profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Own profile
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    put:
+      tags: [Users]
+      summary: Update own profile and notification preferences
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateProfileRequest' }
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/products:
+    get:
+      tags: [Products]
+      summary: Search and browse listings
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: category, in: query, schema: { $ref: '#/components/schemas/Category' } }
+        - { name: region, in: query, schema: { type: string } }
+        - name: available
+          in: query
+          description: Defaults to true. When true only ACTIVE listings with quantity > 0 are returned.
+          schema: { type: boolean, default: true }
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 12 } }
+        - { name: sort, in: query, schema: { type: string, default: 'createdAt,desc' } }
+      responses:
+        '200':
+          description: Paged listings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Product' }
+                  page: { type: integer }
+                  size: { type: integer }
+                  total: { type: integer, format: int64 }
+                  totalPages: { type: integer }
+        '400': { $ref: '#/components/responses/BadRequest' }
+    post:
+      tags: [Products]
+      summary: Create a listing as the authenticated farmer/dual-role user
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductWriteRequest' }
+      responses:
+        '201':
+          description: Created listing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/products/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+    get:
+      tags: [Products]
+      summary: Product details
+      responses:
+        '200':
+          description: Product
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Products]
+      summary: Update a listing owned by the authenticated user
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductWriteRequest' }
+      responses:
+        '200':
+          description: Updated listing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Products]
+      summary: Soft-deactivate a listing owned by the authenticated user
+      security: [{ bearerAuth: [] }]
+      responses:
+        '204': { description: Listing deactivated }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/search-events:
+    post:
+      tags: [Search]
+      summary: Record a marketplace search; authentication is optional
+      description: A failed search is only a supporting demand signal, not an explicit request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SearchEventRequest' }
+      responses:
+        '201':
+          description: Search recorded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SearchEventResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/requests:
+    post:
+      tags: [Requests]
+      summary: Submit an explicit product request
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductRequestWrite' }
+      responses:
+        '201':
+          description: Request created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductRequest' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /api/requests/mine:
+    get:
+      tags: [Requests]
+      summary: Requests submitted by the authenticated user
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Own requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ProductRequest' }
+  /api/requests/{id}:
+    get:
+      tags: [Requests]
+      summary: One own request, or an eligible farmer's related request
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200':
+          description: Request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/demand/opportunities:
+    get:
+      tags: [DemandGap]
+      summary: Qualified demand opportunities for the authenticated farmer
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: minScore, in: query, schema: { type: number, minimum: 0, maximum: 100 } }
+        - { name: category, in: query, schema: { $ref: '#/components/schemas/Category' } }
+      responses:
+        '200':
+          description: Opportunities matching the farmer's region or preferences
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/DemandOpportunity' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/demand/opportunities/{id}:
+    get:
+      tags: [DemandGap]
+      summary: One opportunity with its explanation
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200':
+          description: Opportunity
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DemandOpportunity' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/notifications:
+    get:
+      tags: [Notifications]
+      summary: Own notification inbox
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Notification' }
+  /api/notifications/{id}/read:
+    patch:
+      tags: [Notifications]
+      summary: Mark one own notification as read
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200':
+          description: Updated notification
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Notification' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/contact/seller/{productId}:
+    get:
+      tags: [Contact]
+      summary: Consent-based seller contact for an available product
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: productId, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200':
+          description: Contact card (only when seller opted in)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactCard' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/ai/health:
+    get:
+      tags: [AI]
+      summary: AI service availability, including fallback status
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Always available; provider may be fallback
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiHealth' }
+  /api/ai/normalize:
+    post:
+      tags: [AI]
+      summary: Normalize a multilingual product query
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NormalizeRequest' }
+      responses:
+        '200':
+          description: Normalized query
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NormalizeResponse' }
+  /api/ai/match:
+    post:
+      tags: [AI]
+      summary: Match a query against candidate products
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MatchRequest' }
+      responses:
+        '200':
+          description: Match results (AI or deterministic fallback)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MatchResponse' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    Unauthorized:
+      description: Missing or invalid credentials
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    Forbidden:
+      description: Authenticated but not allowed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    Conflict:
+      description: Resource conflict
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+  schemas:
+    Category:
+      type: string
+      enum: [MACHINERY, TOOLS, IRRIGATION, SEEDS, FERTILIZERS, PESTICIDES, OTHER]
+    Unit:
+      type: string
+      enum: [PIECE, KG, LITRE, BAG, QUINTAL]
+    Language:
+      type: string
+      enum: [en, hi, mr]
+    Role:
+      type: string
+      enum: [FARMER, CUSTOMER, BOTH]
+    RegisterRequest:
+      type: object
+      required: [fullName, phone, password, role, region]
+      properties:
+        fullName: { type: string, minLength: 2, maxLength: 120 }
+        phone: { type: string, pattern: '^[6-9][0-9]{9}$' }
+        password: { type: string, minLength: 8, maxLength: 72 }
+        role: { $ref: '#/components/schemas/Role' }
+        region: { type: string, minLength: 2, maxLength: 80 }
+        preferredCategories:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
+        notifyOptIn: { type: boolean, default: true }
+    LoginRequest:
+      type: object
+      required: [phone, password]
+      properties:
+        phone: { type: string }
+        password: { type: string }
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token: { type: string }
+        tokenType: { type: string, example: Bearer }
+        expiresInMs: { type: integer, format: int64 }
+        user: { $ref: '#/components/schemas/User' }
+    User:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        fullName: { type: string }
+        phone: { type: string }
+        role: { $ref: '#/components/schemas/Role' }
+        region: { type: string }
+        preferredCategories:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
+        notifyOptIn: { type: boolean }
+        contactVisible: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    UpdateProfileRequest:
+      type: object
+      required: [fullName, region]
+      properties:
+        fullName: { type: string, minLength: 2, maxLength: 120 }
+        region: { type: string, minLength: 2, maxLength: 80 }
+        preferredCategories:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
+        notifyOptIn: { type: boolean }
+        contactVisible: { type: boolean }
+    Product:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        sellerId: { type: integer, format: int64 }
+        sellerName: { type: string }
+        title: { type: string }
+        description: { type: string }
+        category: { $ref: '#/components/schemas/Category' }
+        price: { type: number }
+        currency: { type: string, example: INR }
+        quantityAvailable: { type: number }
+        unit: { $ref: '#/components/schemas/Unit' }
+        listingStatus: { type: string, enum: [ACTIVE, INACTIVE, SOLD] }
+        language: { $ref: '#/components/schemas/Language' }
+        region: { type: string }
+        imageUrl: { type: string, nullable: true }
+        available: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ProductWriteRequest:
+      type: object
+      required: [title, description, category, price, quantityAvailable, unit, region]
+      properties:
+        title: { type: string, minLength: 3, maxLength: 140 }
+        description: { type: string, minLength: 10, maxLength: 2000 }
+        category: { $ref: '#/components/schemas/Category' }
+        price: { type: number, minimum: 0 }
+        quantityAvailable: { type: number, minimum: 0 }
+        unit: { $ref: '#/components/schemas/Unit' }
+        listingStatus: { type: string, enum: [ACTIVE, INACTIVE, SOLD], default: ACTIVE }
+        language: { $ref: '#/components/schemas/Language' }
+        region: { type: string, minLength: 2, maxLength: 80 }
+        imageUrl: { type: string, nullable: true, maxLength: 500 }
+    SearchEventRequest:
+      type: object
+      required: [query]
+      properties:
+        query: { type: string, minLength: 2, maxLength: 200 }
+        category: { $ref: '#/components/schemas/Category' }
+        region: { type: string, maxLength: 80 }
+        language: { $ref: '#/components/schemas/Language' }
+    SearchEventResponse:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        matched: { type: boolean }
+        resultCount: { type: integer }
+        message: { type: string }
+    ProductRequest:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        requesterId: { type: integer, format: int64 }
+        requesterName: { type: string }
+        title: { type: string }
+        description: { type: string }
+        category: { $ref: '#/components/schemas/Category' }
+        region: { type: string }
+        quantity: { type: number }
+        unit: { $ref: '#/components/schemas/Unit' }
+        language: { $ref: '#/components/schemas/Language' }
+        status: { type: string, enum: [OPEN, FULFILLED, CANCELLED] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ProductRequestWrite:
+      type: object
+      required: [title, description, category, region, quantity, unit]
+      properties:
+        title: { type: string, minLength: 3, maxLength: 140 }
+        description: { type: string, maxLength: 2000 }
+        category: { $ref: '#/components/schemas/Category' }
+        region: { type: string, minLength: 2, maxLength: 80 }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        unit: { $ref: '#/components/schemas/Unit' }
+        language: { $ref: '#/components/schemas/Language' }
+    DemandOpportunity:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string }
+        category: { $ref: '#/components/schemas/Category' }
+        region: { type: string }
+        score: { type: number, minimum: 0, maximum: 100 }
+        threshold: { type: number }
+        requestCount: { type: integer }
+        distinctRequesters: { type: integer }
+        unmatchedSearches: { type: integer }
+        activeListings: { type: integer }
+        reason: { type: string }
+        status: { type: string, enum: [OPEN, EXPIRED] }
+        lastDemandAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+    Notification:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        type: { type: string, enum: [DEMAND_OPPORTUNITY, REQUEST_MATCH, REQUEST_UPDATE, SYSTEM] }
+        title: { type: string }
+        message: { type: string }
+        read: { type: boolean }
+        relatedProductId: { type: integer, format: int64, nullable: true }
+        relatedRequestId: { type: integer, format: int64, nullable: true }
+        relatedOpportunityId: { type: integer, format: int64, nullable: true }
+        createdAt: { type: string, format: date-time }
+    ContactCard:
+      type: object
+      properties:
+        productId: { type: integer, format: int64 }
+        sellerId: { type: integer, format: int64 }
+        sellerName: { type: string }
+        phone: { type: string, nullable: true }
+        region: { type: string }
+        contactVisible: { type: boolean }
+        consentNote: { type: string }
+    NormalizeRequest:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string, minLength: 1, maxLength: 300 }
+    NormalizeResponse:
+      type: object
+      properties:
+        original: { type: string }
+        normalized: { type: string }
+        tokens:
+          type: array
+          items: { type: string }
+        languageGuess: { type: string }
+        normalizedBy: { type: string, enum: [ai, fallback] }
+    MatchCandidate:
+      type: object
+      required: [productId, title]
+      properties:
+        productId: { type: integer, format: int64 }
+        title: { type: string }
+        category: { $ref: '#/components/schemas/Category' }
+        description: { type: string, nullable: true }
+    MatchRequest:
+      type: object
+      required: [query, candidates]
+      properties:
+        query: { type: string, minLength: 1, maxLength: 300 }
+        candidates:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/MatchCandidate' }
+        threshold: { type: number, minimum: 0, maximum: 1, default: 0.6 }
+    MatchResult:
+      type: object
+      properties:
+        productId: { type: integer, format: int64 }
+        match: { type: boolean }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+        reason: { type: string }
+        equivalence: { type: string, enum: [EQUIVALENT, SIMILAR_NOT_EQUIVALENT, UNRELATED] }
+    MatchResponse:
+      type: object
+      properties:
+        queryNormalized: { type: string }
+        matches:
+          type: array
+          items: { $ref: '#/components/schemas/MatchResult' }
+        provider: { type: string, enum: [ai, fallback] }
+    AiHealth:
+      type: object
+      properties:
+        status: { type: string, example: ok }
+        provider: { type: string, example: heuristic }
+        aiAvailable: { type: boolean }
+        fallbackAvailable: { type: boolean, example: true }
+        detail: { type: string }
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string, example: VALIDATION_ERROR }
+        message: { type: string }
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }

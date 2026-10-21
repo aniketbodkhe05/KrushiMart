@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="KrushiMart field illustration">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0f1de"/>
+      <stop offset="1" stop-color="#f2f9f1"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#sky)"/>
+  <circle cx="520" cy="80" r="44" fill="#f8c84f" opacity="0.8"/>
+  <path d="M0 280c120-60 240-10 340-40s200-20 300 20v140H0Z" fill="#96cd90"/>
+  <path d="M0 320c140-30 250 10 350-5s190-10 290 20v65H0Z" fill="#3f8f38"/>
+  <path d="M110 330c0-45 18-76 55-96-2 52-23 83-55 96Z" fill="#c3e3bf"/>
+  <path d="M110 330c-30-20-45-48-46-84 42 13 53 48 46 84Z" fill="#62ae5b"/>
+  <path d="M109 334c0-34 0-62 1-92" stroke="#fdf0c8" stroke-width="4" stroke-linecap="round"/>
+</svg>

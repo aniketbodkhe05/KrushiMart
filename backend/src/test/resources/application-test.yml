@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:krushimart-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  flyway:
+    enabled: false
+
+app:
+  jwt:
+    secret: test-only-secret-with-at-least-thirty-two-bytes
+    expiration-ms: 3600000
+  cors:
+    allowed-origins: http://localhost:5173
+  ai:
+    base-url: http://localhost:65535
+    enabled: false
+
+logging:
+  level:
+    com.krushimart: INFO

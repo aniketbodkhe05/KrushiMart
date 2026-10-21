@@ -1,0 +1,51 @@
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-stacktrace: never
+
+spring:
+  application:
+    name: krushimart
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/krushimart}
+    username: ${DB_USERNAME:krushimart}
+    password: ${DB_PASSWORD:krushimart_dev}
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        format_sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  jackson:
+    default-property-inclusion: non_null
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-change-me-before-any-shared-deployment-32chars}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:4173}
+  ai:
+    base-url: ${AI_SERVICE_URL:http://localhost:8000}
+    enabled: ${AI_SERVICE_ENABLED:true}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    com.krushimart: INFO
+    org.hibernate.SQL: WARN

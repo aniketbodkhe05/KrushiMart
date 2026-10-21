@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="KrushiMart logo">
+  <rect width="64" height="64" rx="16" fill="#2f722a"/>
+  <path d="M32 49c0-12 6-20 18-24-1 13-7 21-18 24Z" fill="#c3e3bf"/>
+  <path d="M32 49C22 45 15 36 14 23c13 3 21 13 22 26Z" fill="#96cd90"/>
+  <path d="M31 50c0-10 0-18 1-28" stroke="#fdf0c8" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="46" cy="18" r="4" fill="#f8c84f"/>
+</svg>

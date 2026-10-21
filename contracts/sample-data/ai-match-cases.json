@@ -1,0 +1,68 @@
+{
+  "note": "Contract fixtures consumed by AI tests. Confidence values are illustrative heuristics, not calibrated probabilities.",
+  "cases": [
+    {
+      "name": "Marathi query to English connector listing",
+      "query": "ठिबक सिंचन जोड",
+      "candidates": [
+        {
+          "productId": 2,
+          "title": "Drip Irrigation Pipe Connector",
+          "category": "IRRIGATION"
+        },
+        {
+          "productId": 7,
+          "title": "Neem Oil Pesticide",
+          "category": "PESTICIDES"
+        }
+      ],
+      "expectedMatchProductIds": [2]
+    },
+    {
+      "name": "English mini tiller with spelling variation",
+      "query": "mini tillar",
+      "candidates": [
+        {
+          "productId": 1,
+          "title": "Mini Tiller 7HP",
+          "category": "MACHINERY"
+        },
+        {
+          "productId": 8,
+          "title": "Rotavator 5 Feet",
+          "category": "MACHINERY"
+        }
+      ],
+      "expectedMatchProductIds": [1]
+    },
+    {
+      "name": "Hindi fertilizer query",
+      "query": "जैविक खाद",
+      "candidates": [
+        {
+          "productId": 4,
+          "title": "Vermicompost Organic Fertilizer",
+          "category": "FERTILIZERS"
+        },
+        {
+          "productId": 3,
+          "title": "Onion Seeds N-53",
+          "category": "SEEDS"
+        }
+      ],
+      "expectedMatchProductIds": [4]
+    },
+    {
+      "name": "Negative match: irrigation pump is not a connector",
+      "query": "drip irrigation connector",
+      "candidates": [
+        {
+          "productId": 6,
+          "title": "Borewell Submersible Pump 1HP",
+          "category": "IRRIGATION"
+        }
+      ],
+      "expectedMatchProductIds": []
+    }
+  ]
+}

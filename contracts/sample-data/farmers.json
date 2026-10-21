@@ -1,0 +1,65 @@
+{
+  "note": "Demo users for local development only. All passwords are the literal value 'password'. Never use these credentials in a shared or public deployment.",
+  "users": [
+    {
+      "id": 1,
+      "fullName": "Ramesh Patil",
+      "phone": "9876543210",
+      "role": "FARMER",
+      "region": "Nashik",
+      "preferredCategories": ["MACHINERY", "TOOLS", "IRRIGATION"],
+      "notifyOptIn": true,
+      "contactVisible": true
+    },
+    {
+      "id": 2,
+      "fullName": "Sunita Deshmukh",
+      "phone": "9876543211",
+      "role": "FARMER",
+      "region": "Pune",
+      "preferredCategories": ["SEEDS", "FERTILIZERS", "PESTICIDES"],
+      "notifyOptIn": true,
+      "contactVisible": true
+    },
+    {
+      "id": 3,
+      "fullName": "Vijay Jadhav",
+      "phone": "9876543212",
+      "role": "FARMER",
+      "region": "Nagpur",
+      "preferredCategories": ["IRRIGATION", "TOOLS"],
+      "notifyOptIn": true,
+      "contactVisible": true
+    },
+    {
+      "id": 4,
+      "fullName": "Asha Kulkarni",
+      "phone": "9876543213",
+      "role": "CUSTOMER",
+      "region": "Nashik",
+      "preferredCategories": [],
+      "notifyOptIn": true,
+      "contactVisible": false
+    },
+    {
+      "id": 5,
+      "fullName": "Ganesh Pawar",
+      "phone": "9876543214",
+      "role": "CUSTOMER",
+      "region": "Nashik",
+      "preferredCategories": [],
+      "notifyOptIn": true,
+      "contactVisible": false
+    },
+    {
+      "id": 6,
+      "fullName": "Meera Shinde",
+      "phone": "9876543215",
+      "role": "CUSTOMER",
+      "region": "Nashik",
+      "preferredCategories": [],
+      "notifyOptIn": true,
+      "contactVisible": false
+    }
+  ]
+}

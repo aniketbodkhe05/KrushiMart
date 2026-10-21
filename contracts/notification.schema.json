@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://krushimart.local/schemas/notification.schema.json",
+  "title": "Notification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "type", "title", "message", "read", "createdAt"],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "type": {
+      "type": "string",
+      "enum": ["DEMAND_OPPORTUNITY", "REQUEST_MATCH", "REQUEST_UPDATE", "SYSTEM"]
+    },
+    "title": { "type": "string", "maxLength": 160 },
+    "message": { "type": "string", "maxLength": 500 },
+    "read": { "type": "boolean" },
+    "relatedProductId": { "type": ["integer", "null"] },
+    "relatedRequestId": { "type": ["integer", "null"] },
+    "relatedOpportunityId": { "type": ["integer", "null"] },
+    "createdAt": { "type": "string", "format": "date-time" }
+  }
+}

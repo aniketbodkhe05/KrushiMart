@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://krushimart.local/schemas/demand-opportunity.schema.json",
+  "title": "DemandOpportunity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "category",
+    "region",
+    "score",
+    "threshold",
+    "requestCount",
+    "distinctRequesters",
+    "unmatchedSearches",
+    "activeListings",
+    "reason",
+    "status",
+    "lastDemandAt",
+    "createdAt"
+  ],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "title": { "type": "string" },
+    "category": {
+      "type": "string",
+      "enum": ["MACHINERY", "TOOLS", "IRRIGATION", "SEEDS", "FERTILIZERS", "PESTICIDES", "OTHER"]
+    },
+    "region": { "type": "string" },
+    "score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "threshold": { "type": "number", "minimum": 0, "maximum": 100 },
+    "requestCount": { "type": "integer", "minimum": 0 },
+    "distinctRequesters": { "type": "integer", "minimum": 0 },
+    "unmatchedSearches": { "type": "integer", "minimum": 0 },
+    "activeListings": { "type": "integer", "minimum": 0 },
+    "reason": {
+      "type": "string",
+      "description": "Human-readable explanation of the deterministic score."
+    },
+    "status": { "type": "string", "enum": ["OPEN", "EXPIRED"] },
+    "lastDemandAt": { "type": "string", "format": "date-time" },
+    "createdAt": { "type": "string", "format": "date-time" }
+  }
+}

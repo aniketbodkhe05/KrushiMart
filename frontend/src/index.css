@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-stone-50 font-sans text-stone-800 antialiased;
+  }
+
+  ::selection {
+    @apply bg-leaf-200 text-leaf-900;
+  }
+
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    @apply focus-visible:outline-none;
+  }
+}
+
+@layer components {
+  .page-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-space {
+    @apply py-12 sm:py-16;
+  }
+
+  .skeleton {
+    @apply animate-pulse rounded-xl bg-stone-200/80;
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "note": "Demo notifications for user 1 (Ramesh Patil). Notifications are private to the authenticated recipient.",
+  "notifications": [
+    {
+      "id": 1,
+      "type": "DEMAND_OPPORTUNITY",
+      "title": "Nashik machinery demand is rising",
+      "message": "Three separate customers requested mini/power tillers in Nashik. Your mini tiller listing is relevant.",
+      "read": false,
+      "relatedProductId": 1,
+      "relatedRequestId": 1,
+      "relatedOpportunityId": null,
+      "createdAt": "2026-10-20T08:05:00Z"
+    },
+    {
+      "id": 2,
+      "type": "SYSTEM",
+      "title": "Welcome to KrushiMart",
+      "message": "Complete your farm profile and enable notifications to receive relevant demand opportunities.",
+      "read": true,
+      "relatedProductId": null,
+      "relatedRequestId": null,
+      "relatedOpportunityId": null,
+      "createdAt": "2026-10-15T05:00:00Z"
+    }
+  ]
+}

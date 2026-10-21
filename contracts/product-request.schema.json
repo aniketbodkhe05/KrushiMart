@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://krushimart.local/schemas/product-request.schema.json",
+  "title": "ProductRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "requesterId",
+    "requesterName",
+    "title",
+    "description",
+    "category",
+    "region",
+    "quantity",
+    "unit",
+    "language",
+    "status",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "requesterId": { "type": "integer", "minimum": 1 },
+    "requesterName": { "type": "string" },
+    "title": { "type": "string", "minLength": 3, "maxLength": 140 },
+    "description": { "type": "string", "maxLength": 2000 },
+    "category": {
+      "type": "string",
+      "enum": ["MACHINERY", "TOOLS", "IRRIGATION", "SEEDS", "FERTILIZERS", "PESTICIDES", "OTHER"]
+    },
+    "region": { "type": "string", "minLength": 2, "maxLength": 80 },
+    "quantity": { "type": "number", "exclusiveMinimum": 0 },
+    "unit": { "type": "string", "enum": ["PIECE", "KG", "LITRE", "BAG", "QUINTAL"] },
+    "language": { "type": "string", "enum": ["en", "hi", "mr"] },
+    "status": { "type": "string", "enum": ["OPEN", "FULFILLED", "CANCELLED"] },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}

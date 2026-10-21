@@ -1,0 +1,60 @@
+{
+  "note": "Unsuccessful searches are supporting signals only. They cannot create a high-priority opportunity without explicit requests.",
+  "searchEvents": [
+    {
+      "id": 1,
+      "userId": 4,
+      "query": "mini tiller",
+      "category": "MACHINERY",
+      "region": "Nashik",
+      "language": "en",
+      "matched": false,
+      "resultCount": 0,
+      "createdAt": "2026-10-18T06:10:00Z"
+    },
+    {
+      "id": 2,
+      "userId": 5,
+      "query": "power tiller",
+      "category": "MACHINERY",
+      "region": "Nashik",
+      "language": "en",
+      "matched": false,
+      "resultCount": 0,
+      "createdAt": "2026-10-19T06:20:00Z"
+    },
+    {
+      "id": 3,
+      "userId": 6,
+      "query": "मिनी टिलर",
+      "category": "MACHINERY",
+      "region": "Nashik",
+      "language": "mr",
+      "matched": false,
+      "resultCount": 0,
+      "createdAt": "2026-10-19T16:00:00Z"
+    },
+    {
+      "id": 4,
+      "userId": null,
+      "query": "tractor rotavator",
+      "category": "MACHINERY",
+      "region": "Pune",
+      "language": "en",
+      "matched": false,
+      "resultCount": 0,
+      "createdAt": "2026-10-20T04:00:00Z"
+    },
+    {
+      "id": 5,
+      "userId": 4,
+      "query": "onion seeds",
+      "category": "SEEDS",
+      "region": "Nashik",
+      "language": "en",
+      "matched": true,
+      "resultCount": 1,
+      "createdAt": "2026-10-20T06:30:00Z"
+    }
+  ]
+}
