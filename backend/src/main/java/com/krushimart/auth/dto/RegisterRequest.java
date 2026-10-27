@@ -16,7 +16,7 @@ public record RegisterRequest(
         @NotBlank @Size(min = 8, max = 72) String password,
         @NotNull UserRole role,
         @NotBlank @Size(min = 2, max = 80) String region,
-        List<ProductCategory> preferredCategories,
+        @Size(max = 7) List<@NotNull ProductCategory> preferredCategories,
         Boolean notifyOptIn
 ) {
 }

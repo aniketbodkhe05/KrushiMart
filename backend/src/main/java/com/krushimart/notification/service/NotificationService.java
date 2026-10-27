@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 public class NotificationService {
 
     private static final int MAX_MATCH_NOTIFICATIONS = 20;
+    private static final int MAX_TITLE_LENGTH = 160;
+    private static final int MAX_MESSAGE_LENGTH = 500;
     private static final Set<String> STOP_WORDS = Set.of(
             "the", "and", "for", "with", "from", "need", "needed", "want", "wanted",
             "required", "require", "looking", "available", "good", "condition", "small",
@@ -76,10 +78,11 @@ public class NotificationService {
             Notification notification = new Notification();
             notification.setUser(request.getRequester());
             notification.setType(NotificationType.REQUEST_MATCH);
-            notification.setTitle("A listing may match your request");
-            notification.setMessage("\"" + product.getTitle() + "\" from " + product.getSeller().getFullName()
-                    + " is now listed in " + product.getRegion() + " and may match your request \""
-                    + request.getTitle() + "\".");
+            notification.setTitle(fit("A listing may match your request", MAX_TITLE_LENGTH));
+            notification.setMessage(fit("\"" + product.getTitle() + "\" from "
+                    + product.getSeller().getFullName() + " is now listed in " + product.getRegion()
+                    + " and may match your request \"" + request.getTitle() + "\".",
+                    MAX_MESSAGE_LENGTH));
             notification.setRelatedProductId(product.getId());
             notification.setRelatedRequestId(request.getId());
             notification.setCreatedAt(Instant.now());
@@ -97,14 +100,22 @@ public class NotificationService {
         Notification notification = new Notification();
         notification.setUser(farmer);
         notification.setType(NotificationType.DEMAND_OPPORTUNITY);
-        notification.setTitle("Demand opportunity in " + opportunity.getRegion());
-        notification.setMessage("Demand gap score " + opportunity.getScore().stripTrailingZeros().toPlainString()
+        notification.setTitle(fit("Demand opportunity in " + opportunity.getRegion(), MAX_TITLE_LENGTH));
+        notification.setMessage(fit("Demand gap score "
+                + opportunity.getScore().stripTrailingZeros().toPlainString()
                 + "/100 for " + opportunity.getCategory() + " in " + opportunity.getRegion()
-                + ". " + opportunity.getReason());
+                + ". " + opportunity.getReason(), MAX_MESSAGE_LENGTH));
         notification.setRelatedOpportunityId(opportunity.getId());
         notification.setRelatedRequestId(requestId > 0 ? Long.valueOf(requestId) : null);
         notification.setCreatedAt(Instant.now());
         notificationRepository.save(notification);
+    }
+
+    private String fit(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength - 3) + "...";
     }
 
     private Set<String> significantTokens(String text) {
