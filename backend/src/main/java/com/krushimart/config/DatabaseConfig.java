@@ -21,7 +21,17 @@ public class DatabaseConfig {
             @Value("${DB_USERNAME:krushimart}") String dbUsername,
             @Value("${DB_PASSWORD:krushimart_dev}") String dbPassword) {
         String resolvedUrl = firstNonBlank(databaseUrl, jdbcDatabaseUrl, dbUrl);
-        if (resolvedUrl != null && resolvedUrl.startsWith("postgres")) {
+        boolean onRender = !System.getenv().getOrDefault("RENDER", "").isBlank();
+        if (resolvedUrl == null || resolvedUrl.isBlank()) {
+            if (onRender) {
+                throw new IllegalStateException("Database URL is not configured. Set DATABASE_URL or DB_URL on Render.");
+            }
+            resolvedUrl = "jdbc:postgresql://localhost:5432/krushimart";
+        }
+        if (onRender && resolvedUrl.contains("localhost")) {
+            throw new IllegalStateException("Database URL resolves to localhost on Render. Set DATABASE_URL or DB_URL to the Render PostgreSQL connection string.");
+        }
+        if (resolvedUrl.startsWith("postgres")) {
             try {
                 URI uri = new URI(resolvedUrl.replace("postgres://", "postgresql://"));
                 String host = uri.getHost();
