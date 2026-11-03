@@ -16,12 +16,14 @@ public class DatabaseConfig {
     @Primary
     public DataSource dataSource(
             @Value("${DATABASE_URL:}") String databaseUrl,
-            @Value("${DB_URL:jdbc:postgresql://localhost:5432/krushimart}") String dbUrl,
+            @Value("${JDBC_DATABASE_URL:}") String jdbcDatabaseUrl,
+            @Value("${DB_URL:}") String dbUrl,
             @Value("${DB_USERNAME:krushimart}") String dbUsername,
             @Value("${DB_PASSWORD:krushimart_dev}") String dbPassword) {
-        if (databaseUrl != null && !databaseUrl.isBlank()) {
+        String resolvedUrl = firstNonBlank(databaseUrl, jdbcDatabaseUrl, dbUrl);
+        if (resolvedUrl != null && resolvedUrl.startsWith("postgres")) {
             try {
-                URI uri = new URI(databaseUrl.replace("postgres://", "postgresql://"));
+                URI uri = new URI(resolvedUrl.replace("postgres://", "postgresql://"));
                 String host = uri.getHost();
                 int port = uri.getPort() == -1 ? 5432 : uri.getPort();
                 String path = uri.getPath();
@@ -34,8 +36,7 @@ public class DatabaseConfig {
                     if (parts.length > 0 && !parts[0].isBlank()) username = parts[0];
                     if (parts.length > 1) password = parts[1];
                 }
-                String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + dbName
-                        + "?sslmode=require";
+                String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + dbName;
                 return DataSourceBuilder.create()
                         .url(jdbcUrl)
                         .username(username)
@@ -43,14 +44,23 @@ public class DatabaseConfig {
                         .driverClassName("org.postgresql.Driver")
                         .build();
             } catch (Exception ignored) {
-                // fall through to explicit DB_* configuration
+                // fall through
             }
         }
+        String finalUrl = (resolvedUrl == null || resolvedUrl.isBlank())
+                ? "jdbc:postgresql://localhost:5432/krushimart" : resolvedUrl;
         return DataSourceBuilder.create()
-                .url(dbUrl)
+                .url(finalUrl)
                 .username(dbUsername)
                 .password(dbPassword)
                 .driverClassName("org.postgresql.Driver")
                 .build();
+    }
+
+    private static String firstNonBlank(String... values) {
+        for (String v : values) {
+            if (v != null && !v.isBlank()) return v;
+        }
+        return null;
     }
 }
